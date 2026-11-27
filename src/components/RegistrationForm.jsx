@@ -1,35 +1,61 @@
 import { useState } from "react";
+
+const favouriteBands = [
+  { id: "system-of-a-down", band: "System of a down" },
+  { id: "type-o-negative", band: "Type o Negative" },
+  { id: "radiohead", band: "Radiohead" },
+  { id: "the-smiths", band: "The Smiths" },
+];
+
+const arrSelect = [
+  { id: "odessa", city: "Odessa" },
+  { id: "lviv", city: "Lviv" },
+  { id: "kyiv", city: "Kyiv" },
+  { id: "rivne", city: "Rivne" },
+];
+
+const arrRadio = [
+  { id: "csharp", lang: "C#" },
+  { id: "cpp", lang: "C++" },
+  { id: "javascript", lang: "JS" },
+  { id: "java", lang: "Java" },
+];
+
 export default function RegistrationForm() {
-  const favouriteBands = [
-    "System of a down",
-    "Type o Negative",
-    "Radiohead",
-    "The Smiths",
-  ];
   const [formData, setFormData] = useState({
     name: "",
     message: "",
     bands: [],
+    city: arrSelect[0].city,
+    lang: "",
   });
+  const [submittedData, setSubmittedData] = useState(null);
 
-  handleChange = (e) => {
+  const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData((prev) => ({
       ...prev,
       [name]: value,
     }));
   };
-  handleBandChange = (e) => {
-    const { value, checked } = e.target;
-    setFormData((prev) => ({
-      ...prev,
-      bands: checked
-        ? [...prev.bands, value]
-        : prev.bands.filter((band) => band !== value),
-    }));
+  const handleBandChange = (e) => {
+    const name = e.target.name;
+    const value = e.target.value;
+    if (e.target.checked) {
+      setFormData((prev) => ({
+        ...(prev || {}),
+        [name]: [...(prev[name] || []), value],
+      }));
+    } else {
+      setFormData((prev) => ({
+        ...(prev || {}),
+        [name]: (prev[name] || []).filter((item) => item !== value),
+      }));
+    }
   };
-  handleSubmit = (e) => {
+  const handleSubmit = (e) => {
     e.preventDefault();
+    setSubmittedData(formData);
     console.log("Submitted:", formData);
   };
 
@@ -55,23 +81,61 @@ export default function RegistrationForm() {
         onChange={handleChange}
       />
 
-      <fieldset>
-        <legend>Bands you like:</legend>
-        {favouriteBands.map((band) => (
-          <label key={band} style={{ display: "block" }}>
+      <div>
+        <p>Choose bands:</p>
+        {favouriteBands.map(({ id, band }) => (
+          <label key={id}>
             <input
               type="checkbox"
               name="bands"
               value={band}
               checked={formData.bands.includes(band)}
               onChange={handleBandChange}
-            />
+            ></input>
             {band}
           </label>
         ))}
-      </fieldset>
+      </div>
+
+      <div>
+        <p>Choose city</p>
+        <select name="city" value={formData.city} onChange={handleChange}>
+          {arrSelect.map((item) => (
+            <option key={item.id} value={item.city}>
+              {item.city}
+            </option>
+          ))}
+        </select>
+      </div>
+
+      <div>
+        <p>Choose language:</p>
+        {arrRadio.map(({ id, lang }) => (
+          <label key={id}>
+            <input
+              type="radio"
+              name="lang"
+              value={lang}
+              checked={formData.lang === lang}
+              onChange={handleChange}
+            ></input>
+            {lang}
+          </label>
+        ))}
+      </div>
 
       <button type="submit">Send</button>
+
+      {submittedData && (
+        <div>
+          <h3>Submitted data</h3>
+          <p>Name: {submittedData.name}</p>
+          <p>Message: {submittedData.message}</p>
+          <p>Bands: {submittedData.bands.join(", ") || "None"}</p>
+          <p>City: {submittedData.city}</p>
+          <p>Language: {submittedData.lang || "None"}</p>
+        </div>
+      )}
     </form>
   );
 }
